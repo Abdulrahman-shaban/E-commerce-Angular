@@ -1,9 +1,12 @@
 const mongoose = require('mongoose');
 
-const ShippingFeesSchema = new mongoose.Schema({
-  region: String,
-  fee: Number,
-  createdAt: { type: Date, default: Date.now }
-});
+const shippingFeesSchema = new mongoose.Schema(
+  {
+    country: { type: String, required: true },
+    city: { type: String, required: true },
+    fee: { type: Number, required: true },
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('ShippingFees', ShippingFeesSchema);
+module.exports = mongoose.model('ShippingFees', shippingFeesSchema);

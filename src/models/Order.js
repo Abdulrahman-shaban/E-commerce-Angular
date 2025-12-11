@@ -1,19 +1,52 @@
 const mongoose = require('mongoose');
 
-const OrderItemSchema = new mongoose.Schema({
-  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-  price: Number,
-  quantity: Number
-});
+const orderSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
 
-const OrderSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  items: [OrderItemSchema],
-  total: Number,
-  status: { type: String, enum: ['pending', 'paid', 'shipped', 'completed', 'cancelled'], default: 'pending' },
-  shippingAddress: Object,
-  paymentMethod: String,
-  createdAt: { type: Date, default: Date.now }
-});
+    items: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Product',
+          required: true
+        },
+        quantity: { type: Number, required: true },
+        price: { type: Number, required: true },
+        size: { type: String, default: null },
+        color: { type: String, default: null }
+      }
+    ],
 
-module.exports = mongoose.model('Order', OrderSchema);
+    shippingAddress: {
+      fullName: { type: String, required: true },
+      phone: { type: String, required: true },
+      city: { type: String, required: true },
+      street: { type: String, required: true },
+      building: { type: String, required: true }
+    },
+
+    paymentMethod: {
+      type: String,
+      enum: ['COD', 'CARD'],
+      default: 'COD'
+    },
+
+    status: {
+      type: String,
+      enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+      default: 'pending'
+    },
+
+    shippingFees: { type: Number, default: 0 },
+    subtotal: { type: Number, required: true },
+    total: { type: Number, required: true }
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model('Order', orderSchema);

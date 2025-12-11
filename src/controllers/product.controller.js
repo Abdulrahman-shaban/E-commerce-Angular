@@ -1,29 +1,75 @@
-const Product = require('../models/Product');
+// /server/src/controllers/product.controller.js
+const productService = require('../services/product.service');
 
-exports.list = async (req, res) => {
-  const products = await Product.find().limit(50).populate('category');
-  res.json({ products });
+exports.createProduct = async (req, res, next) => {
+  try {
+    const product = await productService.createProduct(req.body);
+    res.status(201).json({ success: true, data: product });
+  } catch (err) {
+    next(err);
+  }
 };
 
-exports.get = async (req, res) => {
-  const product = await Product.findById(req.params.id).populate('category');
-  if (!product) return res.status(404).json({ message: 'Product not found' });
-  res.json({ product });
+exports.getProducts = async (req, res, next) => {
+  try {
+    const products = await productService.getProducts(req.query);
+    res.json({ success: true, data: products });
+  } catch (err) {
+    next(err);
+  }
 };
 
-exports.create = async (req, res) => {
-  const body = req.body;
-  const product = await Product.create(body);
-  res.status(201).json({ product });
+exports.getProductById = async (req, res, next) => {
+  try {
+    const product = await productService.getProductById(req.params.id);
+    res.json({ success: true, data: product });
+  } catch (err) {
+    next(err);
+  }
 };
 
-exports.update = async (req, res) => {
-  const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  if (!product) return res.status(404).json({ message: 'Product not found' });
-  res.json({ product });
+exports.updateProduct = async (req, res, next) => {
+  try {
+    const product = await productService.updateProduct(req.params.id, req.body);
+    res.json({ success: true, data: product });
+  } catch (err) {
+    next(err);
+  }
 };
 
-exports.remove = async (req, res) => {
-  await Product.findByIdAndDelete(req.params.id);
-  res.json({ ok: true });
+exports.softDeleteProduct = async (req, res, next) => {
+  try {
+    const product = await productService.softDeleteProduct(req.params.id);
+    res.json({ success: true, data: product });
+  } catch (err) {
+    next(err);
+  }
 };
+
+exports.toggleActive = async (req, res, next) => {
+  try {
+    const product = await productService.toggleActive(req.params.id);
+    res.json({ success: true, data: product });
+  } catch (err) {
+    next(err);
+  }
+};
+exports.getProductsWithFilters = async (req, res) => {
+  try {
+    const { category, minPrice, maxPrice, search } = req.query;
+    const products = await productService.getProductsWithFilters({ category, minPrice, maxPrice, search });
+    res.json({ ok: true, products });
+  } catch (err) {
+    res.status(400).json({ ok: false, message: err.message });
+  }
+};
+exports.getProductsWithFilters = async (req, res) => {
+  try {
+    const { category, minPrice, maxPrice, search, page, limit, sortBy, order } = req.query;
+    const result = await productService.getProductsWithFilters({ category, minPrice, maxPrice, search, page, limit, sortBy, order });
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    res.status(400).json({ ok: false, message: err.message });
+  }
+};
+
